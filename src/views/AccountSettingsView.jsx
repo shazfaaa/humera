@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -9,62 +9,22 @@ import {
   Landmark,
   Pencil,
   Shield,
-  UserCheck,
-} from 'lucide-react';
-import type {
-  AuditLogEntry,
-  BankChangeRequest,
-  EmployeeRecord,
-  Language,
-} from '../types/hcm';
-import { translations } from '../i18n/translations';
-import { Avatar } from '../components/Avatar';
-import { formatIDR, getDocumentExpiryTier } from '../utils/hcmRules';
-
-type SettingsSubTab =
-  | 'profile'
-  | 'employment'
-  | 'bank_tax'
-  | 'documents'
-  | 'history'
-  | 'security'
-  | 'audit';
-
-interface AccountSettingsViewProps {
-  language: Language;
-  employee: EmployeeRecord;
-  isAdminContext: boolean;
-  bankChangeRequests: BankChangeRequest[];
-  auditLogs: AuditLogEntry[];
-  onUpdatePersonalInfo: (updates: {
-    phone: string;
-    bio: string;
-    cityState: string;
-    postalCode: string;
-    emergencyContactName: string;
-    emergencyContactPhone: string;
-  }) => void;
-  onRequestBankChange: (payload: {
-    newBankName: string;
-    newAccountNumber: string;
-    newAccountHolder: string;
-    reason: string;
-  }) => void;
-}
-
-export function AccountSettingsView({
+  UserCheck
+} from "lucide-react";
+import { translations } from "../i18n/translations";
+import { Avatar } from "../components/Avatar";
+import { formatIDR, getDocumentExpiryTier } from "../utils/hcmRules";
+function AccountSettingsView({
   language,
   employee,
   isAdminContext,
   bankChangeRequests,
   auditLogs,
   onUpdatePersonalInfo,
-  onRequestBankChange,
-}: AccountSettingsViewProps) {
+  onRequestBankChange
+}) {
   const t = translations[language];
-  const [activeSubTab, setActiveSubTab] = useState<SettingsSubTab>('profile');
-
-  // Personal Info inline editing state (matching Image 2 Edit cards)
+  const [activeSubTab, setActiveSubTab] = useState("profile");
   const [editingPersonal, setEditingPersonal] = useState(false);
   const [phone, setPhone] = useState(employee.person.phone);
   const [bio, setBio] = useState(employee.person.bio);
@@ -73,34 +33,27 @@ export function AccountSettingsView({
   const [postalCode, setPostalCode] = useState(employee.person.postalCode);
   const [emergencyName, setEmergencyName] = useState(employee.person.emergencyContactName);
   const [emergencyPhone, setEmergencyPhone] = useState(employee.person.emergencyContactPhone);
-
-  // Bank Account Change Form (FSD Employee Core AC #1: Pending Verification)
   const [showBankForm, setShowBankForm] = useState(false);
-  const [newBankName, setNewBankName] = useState('');
-  const [newAccountNumber, setNewAccountNumber] = useState('');
+  const [newBankName, setNewBankName] = useState("");
+  const [newAccountNumber, setNewAccountNumber] = useState("");
   const [newAccountHolder, setNewAccountHolder] = useState(employee.person.fullName);
-  const [bankReason, setBankReason] = useState('');
-  const [bankError, setBankError] = useState('');
-
-  // Security / MFA session state
+  const [bankReason, setBankReason] = useState("");
+  const [bankError, setBankError] = useState("");
   const [mfaEnabled, setMfaEnabled] = useState(true);
-  const [revokedDeviceIds, setRevokedDeviceIds] = useState<string[]>([]);
-
+  const [revokedDeviceIds, setRevokedDeviceIds] = useState([]);
   const myPendingBankReq = bankChangeRequests.find(
-    (r) => r.employeeId === employee.id && r.status === 'pending_verification'
+    (r) => r.employeeId === employee.id && r.status === "pending_verification"
   );
-
-  const subNavItems: { id: SettingsSubTab; label: string; icon: typeof UserCheck }[] = [
-    { id: 'profile', label: t.myProfile, icon: UserCheck },
-    { id: 'employment', label: t.employmentContract, icon: Landmark },
-    { id: 'bank_tax', label: t.bankTax, icon: Landmark },
-    { id: 'documents', label: t.documentsExpiry, icon: FileText },
-    { id: 'history', label: t.careerHistory, icon: History },
-    { id: 'security', label: t.securityMfa, icon: KeyRound },
-    ...(isAdminContext ? [{ id: 'audit' as const, label: t.auditTrail, icon: Shield }] : []),
+  const subNavItems = [
+    { id: "profile", label: t.myProfile, icon: UserCheck },
+    { id: "employment", label: t.employmentContract, icon: Landmark },
+    { id: "bank_tax", label: t.bankTax, icon: Landmark },
+    { id: "documents", label: t.documentsExpiry, icon: FileText },
+    { id: "history", label: t.careerHistory, icon: History },
+    { id: "security", label: t.securityMfa, icon: KeyRound },
+    ...isAdminContext ? [{ id: "audit", label: t.auditTrail, icon: Shield }] : []
   ];
-
-  const handleSavePersonal = (e: React.FormEvent) => {
+  const handleSavePersonal = (e) => {
     e.preventDefault();
     onUpdatePersonalInfo({
       phone,
@@ -108,37 +61,32 @@ export function AccountSettingsView({
       cityState,
       postalCode,
       emergencyContactName: emergencyName,
-      emergencyContactPhone: emergencyPhone,
+      emergencyContactPhone: emergencyPhone
     });
     setEditingPersonal(false);
     setEditingAddress(false);
   };
-
-  const handleBankSubmit = (e: React.FormEvent) => {
+  const handleBankSubmit = (e) => {
     e.preventDefault();
     if (!newBankName.trim() || !newAccountNumber.trim() || !bankReason.trim()) {
       setBankError(
-        language === 'id'
-          ? 'Nama bank, nomor rekening, dan alasan perubahan wajib diisi.'
-          : 'Bank name, account number, and reason are required.'
+        language === "id" ? "Nama bank, nomor rekening, dan alasan perubahan wajib diisi." : "Bank name, account number, and reason are required."
       );
       return;
     }
-    setBankError('');
+    setBankError("");
     onRequestBankChange({
       newBankName: newBankName.trim(),
       newAccountNumber: newAccountNumber.trim(),
       newAccountHolder: newAccountHolder.trim() || employee.person.fullName,
-      reason: bankReason.trim(),
+      reason: bankReason.trim()
     });
     setShowBankForm(false);
-    setNewBankName('');
-    setNewAccountNumber('');
-    setBankReason('');
+    setNewBankName("");
+    setNewAccountNumber("");
+    setBankReason("");
   };
-
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-display font-bold text-slate-900 dark:text-white">
           {t.accountSettings}
@@ -148,45 +96,46 @@ export function AccountSettingsView({
         </span>
       </div>
 
-      {/* Main White Card Container matching Image 2's Two-Column Split */}
+      {
+    /* Main White Card Container matching Image 2's Two-Column Split */
+  }
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[560px]">
-        {/* Inner Left Sub-Navigation (3 cols) */}
+        {
+    /* Inner Left Sub-Navigation (3 cols) */
+  }
         <div className="lg:col-span-3 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800 p-4 space-y-1 bg-slate-50/40 dark:bg-slate-900/50">
           {subNavItems.map((item) => {
-            const active = activeSubTab === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setActiveSubTab(item.id)}
-                className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium transition-colors flex items-center gap-2.5 ${
-                  active
-                    ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-semibold'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
+    const active = activeSubTab === item.id;
+    return <button
+      key={item.id}
+      type="button"
+      onClick={() => setActiveSubTab(item.id)}
+      className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium transition-colors flex items-center gap-2.5 ${active ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-semibold" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white"}`}
+    >
                 <span className="truncate">{item.label}</span>
-              </button>
-            );
-          })}
+              </button>;
+  })}
         </div>
 
-        {/* Right Detail Panel (9 cols) */}
+        {
+    /* Right Detail Panel (9 cols) */
+  }
         <div className="lg:col-span-9 p-5 sm:p-7 space-y-6">
-          {activeSubTab === 'profile' && (
-            <>
+          {activeSubTab === "profile" && <>
               <h3 className="text-base font-display font-semibold text-slate-900 dark:text-white">
                 {t.myProfile}
               </h3>
 
-              {/* Header Identity Card (Image 2 Card 1) */}
+              {
+    /* Header Identity Card (Image 2 Card 1) */
+  }
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <Avatar
-                    name={employee.person.fullName}
-                    src={employee.person.avatarUrl}
-                    size="xl"
-                  />
+    name={employee.person.fullName}
+    src={employee.person.avatarUrl}
+    size="xl"
+  />
                   <div>
                     <div className="text-base font-display font-semibold text-slate-900 dark:text-white">
                       {employee.person.fullName}
@@ -200,77 +149,74 @@ export function AccountSettingsView({
                   </div>
                 </div>
                 <button
-                  type="button"
-                  onClick={() => setEditingPersonal((prev) => !prev)}
-                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors self-start sm:self-center"
-                >
+    type="button"
+    onClick={() => setEditingPersonal((prev) => !prev)}
+    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors self-start sm:self-center"
+  >
                   <Pencil className="w-3.5 h-3.5" />
                   <span>{editingPersonal ? t.cancel : t.edit}</span>
                 </button>
               </div>
 
-              {/* Personal Information Card (Image 2 Card 2) */}
+              {
+    /* Personal Information Card (Image 2 Card 2) */
+  }
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
-                    {language === 'id' ? 'Informasi Pribadi' : 'Personal Information'}
+                    {language === "id" ? "Informasi Pribadi" : "Personal Information"}
                   </h4>
-                  {!editingPersonal && (
-                    <button
-                      type="button"
-                      onClick={() => setEditingPersonal(true)}
-                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors"
-                    >
+                  {!editingPersonal && <button
+    type="button"
+    onClick={() => setEditingPersonal(true)}
+    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors"
+  >
                       <Pencil className="w-3.5 h-3.5" />
                       <span>{t.edit}</span>
-                    </button>
-                  )}
+                    </button>}
                 </div>
 
-                {editingPersonal ? (
-                  <form onSubmit={handleSavePersonal} className="space-y-4">
+                {editingPersonal ? <form onSubmit={handleSavePersonal} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">
                           Telepon
                         </label>
                         <input
-                          type="text"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                        />
+    type="text"
+    value={phone}
+    onChange={(e) => setPhone(e.target.value)}
+    className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+  />
                       </div>
                       <div>
                         <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">
                           Bio / Ringkasan Peran
                         </label>
                         <input
-                          type="text"
-                          value={bio}
-                          onChange={(e) => setBio(e.target.value)}
-                          className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                        />
+    type="text"
+    value={bio}
+    onChange={(e) => setBio(e.target.value)}
+    className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+  />
                       </div>
                     </div>
                     <div className="flex items-center gap-2 justify-end">
                       <button
-                        type="button"
-                        onClick={() => setEditingPersonal(false)}
-                        className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300"
-                      >
+    type="button"
+    onClick={() => setEditingPersonal(false)}
+    className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300"
+  >
                         {t.cancel}
                       </button>
                       <button
-                        type="submit"
-                        className="h-8 px-3.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold"
-                      >
+    type="submit"
+    className="h-8 px-3.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold"
+  >
                         {t.save}
                       </button>
                     </div>
-                  </form>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 text-xs">
+                  </form> : <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 text-xs">
                     <div>
                       <div className="text-slate-400 dark:text-slate-500 mb-1">Nama Lengkap</div>
                       <div className="font-semibold text-slate-900 dark:text-slate-100">
@@ -301,85 +247,83 @@ export function AccountSettingsView({
                         {employee.person.bio}
                       </div>
                     </div>
-                  </div>
-                )}
+                  </div>}
               </div>
 
-              {/* Address & Emergency Contact Card (Image 2 Card 3) */}
+              {
+    /* Address & Emergency Contact Card (Image 2 Card 3) */
+  }
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
-                    {language === 'id' ? 'Alamat & Kontak Darurat' : 'Address & Emergency Contact'}
+                    {language === "id" ? "Alamat & Kontak Darurat" : "Address & Emergency Contact"}
                   </h4>
                   <button
-                    type="button"
-                    onClick={() => setEditingAddress((prev) => !prev)}
-                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors"
-                  >
+    type="button"
+    onClick={() => setEditingAddress((prev) => !prev)}
+    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors"
+  >
                     <Pencil className="w-3.5 h-3.5" />
                     <span>{editingAddress ? t.cancel : t.edit}</span>
                   </button>
                 </div>
 
-                {editingAddress ? (
-                  <form onSubmit={handleSavePersonal} className="space-y-4">
+                {editingAddress ? <form onSubmit={handleSavePersonal} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">
                           Kota / Provinsi
                         </label>
                         <input
-                          type="text"
-                          value={cityState}
-                          onChange={(e) => setCityState(e.target.value)}
-                          className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                        />
+    type="text"
+    value={cityState}
+    onChange={(e) => setCityState(e.target.value)}
+    className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+  />
                       </div>
                       <div>
                         <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">
                           Kode Pos
                         </label>
                         <input
-                          type="text"
-                          value={postalCode}
-                          onChange={(e) => setPostalCode(e.target.value)}
-                          className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                        />
+    type="text"
+    value={postalCode}
+    onChange={(e) => setPostalCode(e.target.value)}
+    className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+  />
                       </div>
                       <div>
                         <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">
                           Nama Kontak Darurat
                         </label>
                         <input
-                          type="text"
-                          value={emergencyName}
-                          onChange={(e) => setEmergencyName(e.target.value)}
-                          className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                        />
+    type="text"
+    value={emergencyName}
+    onChange={(e) => setEmergencyName(e.target.value)}
+    className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+  />
                       </div>
                       <div>
                         <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">
                           Telepon Darurat
                         </label>
                         <input
-                          type="text"
-                          value={emergencyPhone}
-                          onChange={(e) => setEmergencyPhone(e.target.value)}
-                          className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                        />
+    type="text"
+    value={emergencyPhone}
+    onChange={(e) => setEmergencyPhone(e.target.value)}
+    className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+  />
                       </div>
                     </div>
                     <div className="flex justify-end">
                       <button
-                        type="submit"
-                        className="h-8 px-3.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold"
-                      >
+    type="submit"
+    className="h-8 px-3.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold"
+  >
                         {t.save}
                       </button>
                     </div>
-                  </form>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 text-xs">
+                  </form> : <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 text-xs">
                     <div>
                       <div className="text-slate-400 dark:text-slate-500 mb-1">Negara</div>
                       <div className="font-medium text-slate-900 dark:text-slate-100">
@@ -401,18 +345,15 @@ export function AccountSettingsView({
                     <div>
                       <div className="text-slate-400 dark:text-slate-500 mb-1">Kontak Darurat</div>
                       <div className="font-medium text-slate-900 dark:text-slate-100">
-                        {employee.person.emergencyContactName} ({employee.person.emergencyContactRelation}) ·{' '}
+                        {employee.person.emergencyContactName} ({employee.person.emergencyContactRelation}) ·{" "}
                         <span className="tabular-nums">{employee.person.emergencyContactPhone}</span>
                       </div>
                     </div>
-                  </div>
-                )}
+                  </div>}
               </div>
-            </>
-          )}
+            </>}
 
-          {activeSubTab === 'employment' && (
-            <div className="space-y-5">
+          {activeSubTab === "employment" && <div className="space-y-5">
               <div>
                 <h3 className="text-base font-display font-semibold text-slate-900 dark:text-white">
                   {t.employmentContract}
@@ -436,7 +377,7 @@ export function AccountSettingsView({
                   <div className="flex justify-between">
                     <span className="text-slate-500">Kapasitas Waktu</span>
                     <span className="font-medium text-slate-900 dark:text-white">
-                      {employee.employment.timeCapacity === 'full_time' ? 'Penuh Waktu' : 'Paruh Waktu'}
+                      {employee.employment.timeCapacity === "full_time" ? "Penuh Waktu" : "Paruh Waktu"}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -495,11 +436,9 @@ export function AccountSettingsView({
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            </div>}
 
-          {activeSubTab === 'bank_tax' && (
-            <div className="space-y-5">
+          {activeSubTab === "bank_tax" && <div className="space-y-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h3 className="text-base font-display font-semibold text-slate-900 dark:text-white">
@@ -510,15 +449,17 @@ export function AccountSettingsView({
                   </p>
                 </div>
                 <button
-                  type="button"
-                  onClick={() => setShowBankForm((prev) => !prev)}
-                  className="h-8 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold whitespace-nowrap"
-                >
-                  {showBankForm ? t.cancel : 'Ajukan Ubah Rekening'}
+    type="button"
+    onClick={() => setShowBankForm((prev) => !prev)}
+    className="h-8 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold whitespace-nowrap"
+  >
+                  {showBankForm ? t.cancel : "Ajukan Ubah Rekening"}
                 </button>
               </div>
 
-              {/* Active Bank Account */}
+              {
+    /* Active Bank Account */
+  }
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div>
                   <div className="text-slate-400 mb-1">Status Rekening Payroll</div>
@@ -547,9 +488,10 @@ export function AccountSettingsView({
                 </div>
               </div>
 
-              {/* Pending Verification Banner if any */}
-              {myPendingBankReq && (
-                <div className="rounded-xl border border-amber-200 dark:border-amber-800/60 bg-amber-50/70 dark:bg-amber-950/30 p-4 text-xs space-y-1.5">
+              {
+    /* Pending Verification Banner if any */
+  }
+              {myPendingBankReq && <div className="rounded-xl border border-amber-200 dark:border-amber-800/60 bg-amber-50/70 dark:bg-amber-950/30 p-4 text-xs space-y-1.5">
                   <div className="flex items-center gap-2 font-semibold text-amber-800 dark:text-amber-300">
                     <Clock className="w-4 h-4" />
                     <span>{t.pendingVerification}</span>
@@ -557,79 +499,74 @@ export function AccountSettingsView({
                   <p className="text-amber-700 dark:text-amber-300/90">
                     Permintaan ubah ke <span className="font-mono font-semibold">{myPendingBankReq.newBankName} ({myPendingBankReq.newAccountNumber})</span> belum menggantikan rekening aktif hingga disetujui oleh HR/Finance.
                   </p>
-                </div>
-              )}
+                </div>}
 
-              {/* Bank Change Request Form */}
-              {showBankForm && (
-                <form
-                  onSubmit={handleBankSubmit}
-                  className="rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-4 bg-slate-50/50 dark:bg-slate-800/40"
-                >
+              {
+    /* Bank Change Request Form */
+  }
+              {showBankForm && <form
+    onSubmit={handleBankSubmit}
+    className="rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-4 bg-slate-50/50 dark:bg-slate-800/40"
+  >
                   <h4 className="text-xs font-semibold text-slate-900 dark:text-white">
                     Formulir Pengajuan Perubahan Rekening (Step-Up Verification)
                   </h4>
-                  {bankError && (
-                    <div className="text-xs text-red-600 dark:text-red-400 font-medium">
+                  {bankError && <div className="text-xs text-red-600 dark:text-red-400 font-medium">
                       {bankError}
-                    </div>
-                  )}
+                    </div>}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs text-slate-500 mb-1">Nama Bank Baru</label>
                       <input
-                        type="text"
-                        placeholder="Contoh: Bank Mandiri"
-                        value={newBankName}
-                        onChange={(e) => setNewBankName(e.target.value)}
-                        className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
-                      />
+    type="text"
+    placeholder="Contoh: Bank Mandiri"
+    value={newBankName}
+    onChange={(e) => setNewBankName(e.target.value)}
+    className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+  />
                     </div>
                     <div>
                       <label className="block text-xs text-slate-500 mb-1">Nomor Rekening Baru</label>
                       <input
-                        type="text"
-                        placeholder="Contoh: 124-00-991827-1"
-                        value={newAccountNumber}
-                        onChange={(e) => setNewAccountNumber(e.target.value)}
-                        className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono"
-                      />
+    type="text"
+    placeholder="Contoh: 124-00-991827-1"
+    value={newAccountNumber}
+    onChange={(e) => setNewAccountNumber(e.target.value)}
+    className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono"
+  />
                     </div>
                     <div>
                       <label className="block text-xs text-slate-500 mb-1">Nama Pemilik Rekening</label>
                       <input
-                        type="text"
-                        value={newAccountHolder}
-                        onChange={(e) => setNewAccountHolder(e.target.value)}
-                        className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
-                      />
+    type="text"
+    value={newAccountHolder}
+    onChange={(e) => setNewAccountHolder(e.target.value)}
+    className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+  />
                     </div>
                     <div>
                       <label className="block text-xs text-slate-500 mb-1">Alasan Perubahan</label>
                       <input
-                        type="text"
-                        placeholder="Contoh: Pembaruan rekening payroll"
-                        value={bankReason}
-                        onChange={(e) => setBankReason(e.target.value)}
-                        className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
-                      />
+    type="text"
+    placeholder="Contoh: Pembaruan rekening payroll"
+    value={bankReason}
+    onChange={(e) => setBankReason(e.target.value)}
+    className="w-full h-9 px-3 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+  />
                     </div>
                   </div>
                   <div className="flex justify-end">
                     <button
-                      type="submit"
-                      className="h-9 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold"
-                    >
+    type="submit"
+    className="h-9 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold"
+  >
                       Kirim untuk Verifikasi
                     </button>
                   </div>
-                </form>
-              )}
-            </div>
-          )}
+                </form>}
+            </div>}
 
-          {activeSubTab === 'documents' && (
-            <div className="space-y-4">
+          {activeSubTab === "documents" && <div className="space-y-4">
               <div>
                 <h3 className="text-base font-display font-semibold text-slate-900 dark:text-white">
                   {t.documentsExpiry}
@@ -640,50 +577,34 @@ export function AccountSettingsView({
               </div>
               <div className="divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-800">
                 {employee.documents.map((doc) => {
-                  const tier = getDocumentExpiryTier(doc.expiryDate, '2026-11-17');
-                  return (
-                    <div
-                      key={doc.id}
-                      className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
-                    >
+    const tier = getDocumentExpiryTier(doc.expiryDate, "2026-11-17");
+    return <div
+      key={doc.id}
+      className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+    >
                       <div>
                         <div className="font-semibold text-slate-900 dark:text-white">
                           {doc.title}
                         </div>
                         <div className="text-slate-500 dark:text-slate-400 mt-0.5">
-                          Kategori: {doc.category} · Klasifikasi: {doc.classification} · Diunggah{' '}
+                          Kategori: {doc.category} · Klasifikasi: {doc.classification} · Diunggah{" "}
                           <span className="font-mono">{doc.uploadedAt}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        {doc.expiryDate ? (
-                          <span
-                            className={`inline-flex items-center gap-1 font-mono font-semibold ${
-                              tier === 'H-7' || tier === 'expired'
-                                ? 'text-red-600 dark:text-red-400'
-                                : tier === 'H-30' || tier === 'H-60'
-                                  ? 'text-amber-600 dark:text-amber-400'
-                                  : 'text-emerald-600 dark:text-emerald-400'
-                            }`}
-                          >
-                            {(tier === 'H-7' || tier === 'H-30') && (
-                              <AlertTriangle className="w-3.5 h-3.5" />
-                            )}
+                        {doc.expiryDate ? <span
+      className={`inline-flex items-center gap-1 font-mono font-semibold ${tier === "H-7" || tier === "expired" ? "text-red-600 dark:text-red-400" : tier === "H-30" || tier === "H-60" ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}`}
+    >
+                            {(tier === "H-7" || tier === "H-30") && <AlertTriangle className="w-3.5 h-3.5" />}
                             {tier} ({doc.expiryDate})
-                          </span>
-                        ) : (
-                          <span className="text-slate-400">Berlaku Permanen</span>
-                        )}
+                          </span> : <span className="text-slate-400">Berlaku Permanen</span>}
                       </div>
-                    </div>
-                  );
-                })}
+                    </div>;
+  })}
               </div>
-            </div>
-          )}
+            </div>}
 
-          {activeSubTab === 'history' && (
-            <div className="space-y-4">
+          {activeSubTab === "history" && <div className="space-y-4">
               <div>
                 <h3 className="text-base font-display font-semibold text-slate-900 dark:text-white">
                   {t.careerHistory}
@@ -692,17 +613,13 @@ export function AccountSettingsView({
                   Histori lama tidak ditimpa setelah perubahan efektif; perubahan mencatat nilai lama, baru, aktor, dan alasan.
                 </p>
               </div>
-              {employee.history.length === 0 ? (
-                <div className="p-6 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-xs text-slate-500 text-center">
+              {employee.history.length === 0 ? <div className="p-6 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-xs text-slate-500 text-center">
                   Belum ada riwayat perubahan efektif tercatat sejak tanggal bergabung ({employee.employment.joinDate}).
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {employee.history.map((h) => (
-                    <div
-                      key={h.id}
-                      className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 text-xs space-y-1.5"
-                    >
+                </div> : <div className="space-y-3">
+                  {employee.history.map((h) => <div
+    key={h.id}
+    className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 text-xs space-y-1.5"
+  >
                       <div className="flex items-center justify-between">
                         <span className="font-semibold text-slate-900 dark:text-white">
                           {h.summary}
@@ -712,23 +629,19 @@ export function AccountSettingsView({
                         </span>
                       </div>
                       <div className="text-slate-600 dark:text-slate-300">
-                        <span className="text-slate-400">Sebelum:</span> {h.oldValue}{' '}
-                        <span className="mx-1.5 text-slate-400">→</span>{' '}
-                        <span className="text-slate-400">Sesudah:</span>{' '}
+                        <span className="text-slate-400">Sebelum:</span> {h.oldValue}{" "}
+                        <span className="mx-1.5 text-slate-400">→</span>{" "}
+                        <span className="text-slate-400">Sesudah:</span>{" "}
                         <span className="font-medium">{h.newValue}</span>
                       </div>
                       <div className="text-[11px] text-slate-500 dark:text-slate-400">
                         Aktor: {h.actor} · Alasan: {h.reason}
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                    </div>)}
+                </div>}
+            </div>}
 
-          {activeSubTab === 'security' && (
-            <div className="space-y-5">
+          {activeSubTab === "security" && <div className="space-y-5">
               <div>
                 <h3 className="text-base font-display font-semibold text-slate-900 dark:text-white">
                   {t.securityMfa}
@@ -744,30 +657,25 @@ export function AccountSettingsView({
                     Multi-Factor Authentication (Authenticator App)
                   </div>
                   <div className="text-slate-500 dark:text-slate-400 mt-0.5">
-                    Status saat ini: {mfaEnabled ? 'Aktif & Terverifikasi' : 'Nonaktif'}
+                    Status saat ini: {mfaEnabled ? "Aktif & Terverifikasi" : "Nonaktif"}
                   </div>
                 </div>
                 <button
-                  type="button"
-                  onClick={() => setMfaEnabled((p) => !p)}
-                  className={`h-8 px-3 rounded-lg text-xs font-semibold ${
-                    mfaEnabled
-                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                      : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
-                  }`}
-                >
-                  {mfaEnabled ? 'MFA Aktif' : 'Aktifkan MFA'}
+    type="button"
+    onClick={() => setMfaEnabled((p) => !p)}
+    className={`h-8 px-3 rounded-lg text-xs font-semibold ${mfaEnabled ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"}`}
+  >
+                  {mfaEnabled ? "MFA Aktif" : "Aktifkan MFA"}
                 </button>
               </div>
 
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                 {[
-                  { id: 'sess-1', device: 'Chrome Desktop · macOS (Sesi Ini)', ip: '103.144.82.19 · Jakarta', current: true },
-                  { id: 'sess-2', device: 'Humera Mobile · Android 15', ip: '182.1.44.92 · Jakarta', current: false },
-                ].map((sess) => {
-                  const revoked = revokedDeviceIds.includes(sess.id);
-                  return (
-                    <div key={sess.id} className="p-4 flex items-center justify-between gap-4">
+    { id: "sess-1", device: "Chrome Desktop \xB7 macOS (Sesi Ini)", ip: "103.144.82.19 \xB7 Jakarta", current: true },
+    { id: "sess-2", device: "Humera Mobile \xB7 Android 15", ip: "182.1.44.92 \xB7 Jakarta", current: false }
+  ].map((sess) => {
+    const revoked = revokedDeviceIds.includes(sess.id);
+    return <div key={sess.id} className="p-4 flex items-center justify-between gap-4">
                       <div>
                         <div className="font-semibold text-slate-900 dark:text-white">
                           {sess.device}
@@ -776,29 +684,22 @@ export function AccountSettingsView({
                           {sess.ip}
                         </div>
                       </div>
-                      {sess.current ? (
-                        <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                      {sess.current ? <span className="text-emerald-600 dark:text-emerald-400 font-medium">
                           Sesi Aktif
-                        </span>
-                      ) : (
-                        <button
-                          type="button"
-                          disabled={revoked}
-                          onClick={() => setRevokedDeviceIds((p) => [...p, sess.id])}
-                          className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium text-red-600 dark:text-red-400 disabled:opacity-40"
-                        >
-                          {revoked ? 'Dicabut' : 'Logout Perangkat'}
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
+                        </span> : <button
+      type="button"
+      disabled={revoked}
+      onClick={() => setRevokedDeviceIds((p) => [...p, sess.id])}
+      className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium text-red-600 dark:text-red-400 disabled:opacity-40"
+    >
+                          {revoked ? "Dicabut" : "Logout Perangkat"}
+                        </button>}
+                    </div>;
+  })}
               </div>
-            </div>
-          )}
+            </div>}
 
-          {activeSubTab === 'audit' && isAdminContext && (
-            <div className="space-y-4">
+          {activeSubTab === "audit" && isAdminContext && <div className="space-y-4">
               <div>
                 <h3 className="text-base font-display font-semibold text-slate-900 dark:text-white">
                   {t.auditTrail}
@@ -819,8 +720,7 @@ export function AccountSettingsView({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {auditLogs.map((log) => (
-                      <tr key={log.id}>
+                    {auditLogs.map((log) => <tr key={log.id}>
                         <td className="py-2.5 px-3 font-mono text-[11px] text-slate-500 whitespace-nowrap">
                           {log.timestamp}
                         </td>
@@ -836,15 +736,15 @@ export function AccountSettingsView({
                         <td className="py-2.5 px-3 text-slate-700 dark:text-slate-300">
                           {log.target}
                         </td>
-                      </tr>
-                    ))}
+                      </tr>)}
                   </tbody>
                 </table>
               </div>
-            </div>
-          )}
+            </div>}
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }
+export {
+  AccountSettingsView
+};

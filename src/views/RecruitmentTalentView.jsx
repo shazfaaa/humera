@@ -1,36 +1,13 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Award,
   BookOpen,
-  Briefcase,
   CheckSquare,
   ShieldAlert,
   Square,
-  Users,
-} from 'lucide-react';
-import type {
-  CandidateRecord,
-  ClearanceCase,
-  Language,
-  LearningCourse,
-  ManpowerPlan,
-  PerformanceGoal,
-} from '../types/hcm';
-
-interface RecruitmentTalentViewProps {
-  language: Language;
-  mode: 'recruitment' | 'performance';
-  isEssMode: boolean;
-  mppPlans: ManpowerPlan[];
-  candidates: CandidateRecord[];
-  clearanceCases: ClearanceCase[];
-  performanceGoals: PerformanceGoal[];
-  courses: LearningCourse[];
-  onAdvanceCandidateStage: (candidateId: string) => void;
-  onToggleClearanceItem: (caseId: string, itemId: string) => void;
-}
-
-export function RecruitmentTalentView({
+  Users
+} from "lucide-react";
+function RecruitmentTalentView({
   mode,
   isEssMode,
   mppPlans,
@@ -39,14 +16,12 @@ export function RecruitmentTalentView({
   performanceGoals,
   courses,
   onAdvanceCandidateStage,
-  onToggleClearanceItem,
-}: RecruitmentTalentViewProps) {
-  const [recTab, setRecTab] = useState<'mpp' | 'ats' | 'clearance'>('mpp');
-  const [perfTab, setPerfTab] = useState<'kpi' | 'lms'>('kpi');
-
-  if (mode === 'recruitment') {
-    return (
-      <div className="space-y-5">
+  onToggleClearanceItem
+}) {
+  const [recTab, setRecTab] = useState("mpp");
+  const [perfTab, setPerfTab] = useState("kpi");
+  if (mode === "recruitment") {
+    return <div className="space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-xl font-display font-bold text-slate-900 dark:text-white">
@@ -59,28 +34,21 @@ export function RecruitmentTalentView({
 
           <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl w-fit">
             {[
-              { id: 'mpp', label: 'MPP Headcount' },
-              { id: 'ats', label: 'ATS Kandidat' },
-              { id: 'clearance', label: 'Clearance Offboarding' },
-            ].map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setRecTab(t.id as typeof recTab)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg ${
-                  recTab === t.id
-                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400'
-                }`}
-              >
+      { id: "mpp", label: "MPP Headcount" },
+      { id: "ats", label: "ATS Kandidat" },
+      { id: "clearance", label: "Clearance Offboarding" }
+    ].map((t) => <button
+      key={t.id}
+      type="button"
+      onClick={() => setRecTab(t.id)}
+      className={`px-3 py-1.5 text-xs font-medium rounded-lg ${recTab === t.id ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs" : "text-slate-600 dark:text-slate-400"}`}
+    >
                 {t.label}
-              </button>
-            ))}
+              </button>)}
           </div>
         </div>
 
-        {recTab === 'mpp' && (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-x-auto">
+        {recTab === "mpp" && <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-50/70 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-[11px] font-semibold text-slate-500">
@@ -93,8 +61,7 @@ export function RecruitmentTalentView({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {mppPlans.map((m) => (
-                  <tr key={m.id}>
+                {mppPlans.map((m) => <tr key={m.id}>
                     <td className="py-3 px-4">
                       <div className="font-semibold text-slate-900 dark:text-white">
                         {m.positionTitle}
@@ -111,27 +78,21 @@ export function RecruitmentTalentView({
                     </td>
                     <td className="py-3 px-4">
                       <span
-                        className={`font-semibold ${
-                          m.budgetApproved ? 'text-emerald-600' : 'text-amber-600'
-                        }`}
-                      >
-                        {m.budgetApproved ? 'Disetujui (Siap Requisition)' : 'Menunggu Finance'}
+      className={`font-semibold ${m.budgetApproved ? "text-emerald-600" : "text-amber-600"}`}
+    >
+                        {m.budgetApproved ? "Disetujui (Siap Requisition)" : "Menunggu Finance"}
                       </span>
                     </td>
-                  </tr>
-                ))}
+                  </tr>)}
               </tbody>
             </table>
-          </div>
-        )}
+          </div>}
 
-        {recTab === 'ats' && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {candidates.map((cand) => (
-              <div
-                key={cand.id}
-                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between space-y-4 text-xs"
-              >
+        {recTab === "ats" && <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {candidates.map((cand) => <div
+      key={cand.id}
+      className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between space-y-4 text-xs"
+    >
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -154,25 +115,21 @@ export function RecruitmentTalentView({
                   </div>
                 </div>
                 <button
-                  type="button"
-                  disabled={cand.stage === 'hired'}
-                  onClick={() => onAdvanceCandidateStage(cand.id)}
-                  className="h-8 w-full rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white font-semibold"
-                >
-                  {cand.stage === 'hired' ? 'Selesai (Hired)' : 'Lanjut Tahap Berikutnya'}
+      type="button"
+      disabled={cand.stage === "hired"}
+      onClick={() => onAdvanceCandidateStage(cand.id)}
+      className="h-8 w-full rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white font-semibold"
+    >
+                  {cand.stage === "hired" ? "Selesai (Hired)" : "Lanjut Tahap Berikutnya"}
                 </button>
-              </div>
-            ))}
-          </div>
-        )}
+              </div>)}
+          </div>}
 
-        {recTab === 'clearance' && (
-          <div className="space-y-4">
-            {clearanceCases.map((c) => (
-              <div
-                key={c.id}
-                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-3 text-xs"
-              >
+        {recTab === "clearance" && <div className="space-y-4">
+            {clearanceCases.map((c) => <div
+      key={c.id}
+      className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-3 text-xs"
+    >
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -189,51 +146,34 @@ export function RecruitmentTalentView({
                 </div>
 
                 <div className="divide-y divide-slate-100 dark:divide-slate-800 border rounded-xl border-slate-200 dark:border-slate-800">
-                  {c.items.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => onToggleClearanceItem(c.id, item.id)}
-                      className="w-full p-3.5 flex items-center justify-between gap-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/40"
-                    >
+                  {c.items.map((item) => <button
+      key={item.id}
+      type="button"
+      onClick={() => onToggleClearanceItem(c.id, item.id)}
+      className="w-full p-3.5 flex items-center justify-between gap-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/40"
+    >
                       <div className="flex items-center gap-2.5">
-                        {item.completed ? (
-                          <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0" />
-                        ) : (
-                          <Square className="w-4 h-4 text-slate-400 shrink-0" />
-                        )}
+                        {item.completed ? <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0" /> : <Square className="w-4 h-4 text-slate-400 shrink-0" />}
                         <span
-                          className={
-                            item.completed
-                              ? 'line-through text-slate-400'
-                              : 'font-medium text-slate-900 dark:text-white'
-                          }
-                        >
+      className={item.completed ? "line-through text-slate-400" : "font-medium text-slate-900 dark:text-white"}
+    >
                           [{item.team}] {item.task}
                         </span>
                       </div>
-                      {item.riskCritical && (
-                        <span className="text-[11px] font-semibold text-red-600 shrink-0">
+                      {item.riskCritical && <span className="text-[11px] font-semibold text-red-600 shrink-0">
                           Prioritas Tanggal Efektif
-                        </span>
-                      )}
-                    </button>
-                  ))}
+                        </span>}
+                    </button>)}
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
+              </div>)}
+          </div>}
+      </div>;
   }
-
-  return (
-    <div className="space-y-5">
+  return <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-display font-bold text-slate-900 dark:text-white">
-            {isEssMode ? 'KPI / OKR & Pelatihan Saya' : 'Performa, Kalibrasi & Learning (LMS)'}
+            {isEssMode ? "KPI / OKR & Pelatihan Saya" : "Performa, Kalibrasi & Learning (LMS)"}
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Penilaian individu dipisahkan dari faktor pendanaan perusahaan; skor rendah tidak memotong gaji secara otomatis.
@@ -242,39 +182,29 @@ export function RecruitmentTalentView({
 
         <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl w-fit">
           <button
-            type="button"
-            onClick={() => setPerfTab('kpi')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg inline-flex items-center gap-1.5 ${
-              perfTab === 'kpi'
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400'
-            }`}
-          >
+    type="button"
+    onClick={() => setPerfTab("kpi")}
+    className={`px-3 py-1.5 text-xs font-medium rounded-lg inline-flex items-center gap-1.5 ${perfTab === "kpi" ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs" : "text-slate-600 dark:text-slate-400"}`}
+  >
             <Award className="w-3.5 h-3.5" />
             <span>KPI / OKR</span>
           </button>
           <button
-            type="button"
-            onClick={() => setPerfTab('lms')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg inline-flex items-center gap-1.5 ${
-              perfTab === 'lms'
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400'
-            }`}
-          >
+    type="button"
+    onClick={() => setPerfTab("lms")}
+    className={`px-3 py-1.5 text-xs font-medium rounded-lg inline-flex items-center gap-1.5 ${perfTab === "lms" ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs" : "text-slate-600 dark:text-slate-400"}`}
+  >
             <BookOpen className="w-3.5 h-3.5" />
             <span>Katalog Belajar</span>
           </button>
         </div>
       </div>
 
-      {perfTab === 'kpi' ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {performanceGoals.map((g) => (
-            <div
-              key={g.id}
-              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-3 text-xs"
-            >
+      {perfTab === "kpi" ? <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {performanceGoals.map((g) => <div
+    key={g.id}
+    className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-3 text-xs"
+  >
               <div className="flex items-center justify-between">
                 <span className="font-mono text-indigo-600 dark:text-indigo-400 font-semibold">
                   {g.cycle} · Bobot {g.weightPercent}%
@@ -297,32 +227,26 @@ export function RecruitmentTalentView({
                 </div>
                 <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                   <div
-                    style={{ width: `${g.progressPercent}%` }}
-                    className="h-full bg-indigo-600 rounded-full"
-                  />
+    style={{ width: `${g.progressPercent}%` }}
+    className="h-full bg-indigo-600 rounded-full"
+  />
                 </div>
               </div>
               <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between font-mono">
                 <span>Rating Individu: {g.individualRating}/5.0</span>
                 <span>Company Factor: {g.companyFundingFactor}x</span>
               </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {courses.map((c) => (
-            <div
-              key={c.id}
-              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-3 text-xs"
-            >
+            </div>)}
+        </div> : <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {courses.map((c) => <div
+    key={c.id}
+    className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-3 text-xs"
+  >
               <div className="flex items-center justify-between">
                 <span className="font-medium text-indigo-600 dark:text-indigo-400">
                   {c.category}
                 </span>
-                {c.mandatory && (
-                  <span className="font-semibold text-amber-600">Wajib</span>
-                )}
+                {c.mandatory && <span className="font-semibold text-amber-600">Wajib</span>}
               </div>
               <div className="text-sm font-semibold text-slate-900 dark:text-white">
                 {c.title}
@@ -332,20 +256,20 @@ export function RecruitmentTalentView({
               </div>
               <div className="space-y-1">
                 <div className="flex justify-between font-mono">
-                  <span>{isEssMode ? 'Progres Saya' : 'Tingkat Selesai'}</span>
+                  <span>{isEssMode ? "Progres Saya" : "Tingkat Selesai"}</span>
                   <span>{isEssMode ? c.myProgressPercent : c.completionRate}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                   <div
-                    style={{ width: `${isEssMode ? c.myProgressPercent : c.completionRate}%` }}
-                    className="h-full bg-emerald-500 rounded-full"
-                  />
+    style={{ width: `${isEssMode ? c.myProgressPercent : c.completionRate}%` }}
+    className="h-full bg-emerald-500 rounded-full"
+  />
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+            </div>)}
+        </div>}
+    </div>;
 }
+export {
+  RecruitmentTalentView
+};
