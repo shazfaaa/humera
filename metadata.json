@@ -1,0 +1,6 @@
+{
+  "name": "NusaHCM — Sistem Manajemen HR & Operasional Tenaga Kerja",
+  "description": "Platform HCM dan operasional tenaga kerja terintegrasi dengan dashboard Admin HR dan Employee Self-Service (ESS) sesuai FSD v0.1.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
